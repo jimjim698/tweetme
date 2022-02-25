@@ -8,12 +8,32 @@ This is amazing!!!!!!!!!
 {% block content %} <!-- bootstrap -->
 Welcome to Tweetme
 
+<div id="tweets">
+<!-- replace w JS-->
+   Loading....
+</div>
+
+
 <script>
+
+    // Replace with JS
+    const tweetsElement = document.getElementById('tweets')
+    // tweetsElement.innerHTML = 'Loading...'
+
     //List View
 const xhr = new XMLHttpRequest()
 const method = 'GET'
 const url = '/tweets'
 const responseType = 'json'
+
+//Format string function
+function formatTweetElement(tweet){
+   var formattedTweet =  '<div class="mb-4 tweet" id="tweet-'+ tweet.id +'"">' 
+            + '<p>' + tweet.content + '</p></div>'
+
+    return formattedTweet
+}
+
 
 //Lets xhr request know it's getting json back
 xhr.responseType = responseType 
@@ -23,8 +43,25 @@ xhr.open(method,url)
 xhr.onload = function (){
     //console.log(xhr.response)
     const serverResponse = xhr.response
-    var listedItems = serverResponse.response
+    var listedItems = serverResponse.response //array
+    var finalTweetStr = ""
+    var i
+    // finalTweetStr +='<ul>'
+    for(i=0; i< listedItems.length; i++){
+        console.log(listedItems[i].content)
+        // finalTweetStr += '<li>' + listedItems[i].content + '</li>'
+        // finalTweetStr += '<div class="mb-4"><h1>' 
+        //     + listedItems[i].id + '</h1><p>' + listedItems[i].content + '</p></div>'
+        finalTweetStr += formatTweetElement(listedItems[i])
+    } 
+
+    // finalTweetStr += '</ul>'
+    //finalTweetStr.append(listedItems[i].content)
     console.log(listedItems)
+    console.log(finalTweetStr + " the list")
+
+    tweetsElement.innerHTML = finalTweetStr
+
 }
 //triggers the request
 xhr.send()
