@@ -6,9 +6,15 @@ This is amazing!!!!!!!!!
 
 
 {% block content %} <!-- bootstrap -->
-Welcome to Tweetme
+<div class='row text-center'>
+    <div class="col">
+        <h1>Welcome to Tweetme</h1>
+    </div>
 
-<div id="tweets">
+</div>
+
+
+<div class='row' id="tweets">
 <!-- replace w JS-->
    Loading....
 </div>
@@ -34,13 +40,13 @@ function handleDidLike(tweet_id, currentCount){
 //Create Like Button
 function likeBtn(tweet){
     return "<button class='btn btn-primary btn-sm' onclick=handleDidLike(" + tweet.id +
-     "," + tweet.likes+ ")>"+tweet.likes+" Like</button>"
+     "," + tweet.likes+ ")>"+tweet.likes+" Likes</button>"
 }
 
 
 //Format string function
 function formatTweetElement(tweet){
-   var formattedTweet =  '<div class="mb-4 tweet" id="tweet-'+ tweet.id +'"">' 
+   var formattedTweet =  '<div class="col-12 col-md-10 mx-auto border rounded py-3 mb-4 tweet" id="tweet-'+ tweet.id +'"">' 
             + '<p>' + tweet.content +
                 
                 "</p><div class='btn-group'>" + likeBtn(tweet) +
