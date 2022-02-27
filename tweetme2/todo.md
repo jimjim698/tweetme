@@ -9,6 +9,9 @@
 -   Creating
     -   Text
     -   Image -> Media storage of some kind
+-   Delete
+-   Retweeting
+-   Liking
 
 3. Following/Followers
 

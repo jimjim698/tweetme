@@ -1,0 +1,5 @@
+<form method="POST">{% csrf_token %}
+    <!-- as_p wraps INSIDE of form in p tag -->
+    {{form.as_p}}
+    <button type="submit" class="'btn btn-secondary">Save</button>
+</form>
