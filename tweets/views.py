@@ -3,9 +3,17 @@ import random
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
+
+#Checks that the URL is safe. Included in settings
+from django.utils.http import is_safe_url
+#Imports settings, than assign ALLOWED_HOSTS down below
+from django.conf import settings
 from .models import Tweet
 
 from .forms import TweetForm
+
+ALLOWED_HOSTS = settings.ALLOWED_HOSTS
+
 
 def home_view(request, *args, **kwargs):
     #return HttpResponse(f"<h1>Hello World</h1>")
@@ -24,7 +32,9 @@ def tweet_create_view(request, *args, **kwargs):
         obj = form.save(commit=False)
         #You can do other form related logic in here
         obj.save()
-        if next_url != None:
+        if request.is_ajax():
+            return JsonResponse(obj.serialize(), status=201)
+        if next_url != None and is_safe_url(next_url, ALLOWED_HOSTS):
             return redirect(next_url)
 
         #And then reinitialize a new blank form
@@ -47,7 +57,9 @@ def tweet_create_view(request, *args, **kwargs):
 
 def tweet_list_view(request, *args, **kwargs):
     qs = Tweet.objects.all() #List
-    tweets_list = [{"id": x.id, "content": x.content, "likes": random.randint(0, 122)} for x in qs] #List
+    #tweets_list = [{"id": x.id, "content": x.content, "likes": random.randint(0, 122)} for x in qs] #List
+    #Serialzie DMO
+    tweets_list = [x.serialize() for x in qs]
     data = {
         "isUser": False,
         "response": tweets_list, #List
