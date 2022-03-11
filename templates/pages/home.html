@@ -16,7 +16,7 @@ This is amazing!!!!!!!!!
     <div class="col-md-4 mx-auto col-10">
         <form class="form" id="tweet-create-form" method="POST" action="/create-tweet">
             {% csrf_token %}
-            <!-- Handle error -->
+            <!-- Handle Error -->
             <div class = "d-none alert alert-danger" id="tweet-create-form-error"></div>
             <input type="hidden" value="/" name="next">
             <textarea required="required" class="form-control" name="content" placeholder="Your tweet..."></textarea>
@@ -66,7 +66,7 @@ This is amazing!!!!!!!!!
 
         xhr.onload = function(){
             if(xhr.status === 201){
-                // Handle error. Reset if no error on retry
+                // Handle Error. Reset if no error on retry
                 handleTweetFormError("", false)
                 const newTweet = xhr.response
                 const newTweetElement = formatTweetElement(newTweet)
@@ -90,6 +90,9 @@ This is amazing!!!!!!!!!
                 }else{
                     alert("An errr occured. Please try again.")
                 }
+            }else if(xhr.status === 401){ //You could also put a range of status errors
+                alert("You must log in!")
+                window.location.href = '/login'
             }else if(xhr.status === 500){ //You could also put a range of status errors
                 alert("There was a server error")
             }

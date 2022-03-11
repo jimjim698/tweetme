@@ -8,6 +8,8 @@ from django.views import View
 from django.utils.http import is_safe_url
 #Imports settings, than assign ALLOWED_HOSTS down below
 from django.conf import settings
+
+from tweets.serializers import TweetSerializer
 from .models import Tweet
 
 from .forms import TweetForm
@@ -21,7 +23,27 @@ def home_view(request, *args, **kwargs):
     #Templates, status defaults to 200 
     return render(request, "pages/home.html", context={}, status=200)
 
+
 def tweet_create_view(request, *args, **kwargs):
+    serializer = TweetSerializer(data= request.POST or None)
+
+    if serializer.is_valid():
+        serializer.save(user = request.user)
+        return JsonResponse(serializer.data, status=201)
+    return JsonResponse({}, status=400)
+
+
+# Pure Django
+def tweet_create_view_pure_django(request, *args, **kwargs):
+    print("reached")
+    user = request.user
+    # Checks if user session is active
+    if not request.user.is_authenticated:
+        user = None
+        if request.is_ajax():
+            return JsonResponse({}, status=401)
+        return redirect(settings.LOGIN_URL)
+
     # TweetForm class can be initialized with data or not 
     form = TweetForm(request.POST or None)
     # Gets the value of the input field name=next
@@ -29,7 +51,9 @@ def tweet_create_view(request, *args, **kwargs):
     print('post data is', request.POST)
     #If the form is valid it saves it, otherwise returns the form
     if form.is_valid():
+        
         obj = form.save(commit=False)
+        obj.user = user
         #You can do other form related logic in here
         obj.save()
         if request.is_ajax():
