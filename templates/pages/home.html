@@ -93,6 +93,9 @@ This is amazing!!!!!!!!!
             }else if(xhr.status === 401){ //You could also put a range of status errors
                 alert("You must log in!")
                 window.location.href = '/login'
+            }else if(xhr.status === 403){ //You could also put a range of status errors
+                alert("You must log in!")
+                window.location.href = '/login'
             }else if(xhr.status === 500){ //You could also put a range of status errors
                 alert("There was a server error")
             }
@@ -102,7 +105,6 @@ This is amazing!!!!!!!!!
         }
         xhr.send(myFormData)
         console.log(myForm)
-        
     }
 
     const tweetCreateForm = document.getElementById("tweet-create-form")
@@ -127,14 +129,14 @@ This is amazing!!!!!!!!!
         xhr.onload = function (){
 
             const serverResponse = xhr.response
-            var listedItems = serverResponse.response //array
+            var listedItems = serverResponse
+            // var listedItems = serverResponse.response //array, for pure django
             var finalTweetStr = ""
             var i
             
             for(i=0; i< listedItems.length; i++){
                 finalTweetStr += formatTweetElement(listedItems[i])
             } 
-
             tweetsElement.innerHTML = finalTweetStr
         }
  //triggers the request
