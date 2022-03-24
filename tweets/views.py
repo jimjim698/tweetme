@@ -10,7 +10,11 @@ from django.utils.http import is_safe_url
 from django.conf import settings
 
 #Django Rest Framework
-from tweets.serializers import TweetSerializer, TweetActionSerializer
+from tweets.serializers import(
+ TweetSerializer, 
+ TweetActionSerializer,
+ TweetCreateSerializer
+)
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view, permission_classes,authentication_classes
@@ -34,8 +38,8 @@ def home_view(request, *args, **kwargs):
 @permission_classes([IsAuthenticated]) # Only gives access to user if they are authenticated
 @authentication_classes([SessionAuthentication])
 def tweet_create_view(request, *args, **kwargs):
-    serializer = TweetSerializer(data= request.POST)
-
+    serializer = TweetCreateSerializer(data= request.POST)
+    print(serializer)
     # raise_exception = True, so you don't have to pass the exception in to the Reponse like w JSONRespnse
     if serializer.is_valid(raise_exception=True):
         serializer.save(user = request.user)
@@ -62,11 +66,11 @@ def tweet_detail_view(request, tweet_id,*args, **kwargs):
 @api_view(['DELETE', 'POST'])
 @permission_classes([IsAuthenticated]) 
 def tweet_delete_view(request, tweet_id,*args, **kwargs):
-    qs = Tweet.objects.filter(id=tweet_id)
+    qs = Tweet.objects.filter(id=tweet_id) #Finds the tweet
     if not qs.exists():
         Response({}, status=404)
 
-    qs = qs.filter(user=request.user)
+    qs = qs.filter(user=request.user) #Checks that the Tweet belongs to the user trying to delete it
     if not qs.exists():
         return Response({'messgae': 'You cannot delete this Tweet'}, status=400)
     obj = qs.first()
@@ -76,30 +80,41 @@ def tweet_delete_view(request, tweet_id,*args, **kwargs):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated]) 
-def tweet_action_view(request, tweet_id,*args, **kwargs):
+def tweet_action_view(request,*args, **kwargs):
+    print(request.POST, request.data)
     '''
     id is required
     Actions options: like, unlike, retweet
     '''
-    serializer =  TweetActionSerializer(request.POST)
+    serializer =  TweetActionSerializer(data= request.data)
 
     if serializer.is_valid(raise_exception=True):
         data = serializer._validated_data
         tweet_id = data.get("id")
         action = data.get("action")
+        content = data.get("content")
 
         qs = Tweet.objects.filter(id=tweet_id)
         if not qs.exists():
             Response({}, status=404)
         obj = qs.first()
-        
-        if request.user in obj.likes.all():
 
-            obj.likes.remove(request.user)
-        else:
+        if action == "like":
             obj.likes.add(request.user)
+            serializer = TweetSerializer(obj)
+            Response(serializer.data, status=200)
+        elif action == 'unlike':
+            obj.likes.remove(request.user)
+        elif action == "retweet":
+            new_tweet = Tweet.objects.create(
+                user=request.user,
+                 parent=obj,
+                 content=content)
+            #todo
+            serializer = TweetSerializer(new_tweet)
+            return Response(serializer.data, status=200)
 
-    return Response({"message": "Tweet removed"}, status=200)
+    return Response({}, status=200)
 
 
 # Pure Django
