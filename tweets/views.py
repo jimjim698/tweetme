@@ -68,11 +68,11 @@ def tweet_detail_view(request, tweet_id,*args, **kwargs):
 def tweet_delete_view(request, tweet_id,*args, **kwargs):
     qs = Tweet.objects.filter(id=tweet_id) #Finds the tweet
     if not qs.exists():
-        return Response({}, status=404)
+        Response({}, status=404)
 
     qs = qs.filter(user=request.user) #Checks that the Tweet belongs to the user trying to delete it
     if not qs.exists():
-        return Response({'messgae': 'You cannot delete this Tweet'}, status=401)
+        return Response({'messgae': 'You cannot delete this Tweet'}, status=400)
     obj = qs.first()
     obj.delete()
 
@@ -81,7 +81,7 @@ def tweet_delete_view(request, tweet_id,*args, **kwargs):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated]) 
 def tweet_action_view(request,*args, **kwargs):
-    #print(request.POST, request.data)
+    print(request.POST, request.data)
     '''
     id is required
     Actions options: like, unlike, retweet
@@ -90,26 +90,21 @@ def tweet_action_view(request,*args, **kwargs):
 
     if serializer.is_valid(raise_exception=True):
         data = serializer._validated_data
-        print("data ", data)
         tweet_id = data.get("id")
         action = data.get("action")
         content = data.get("content")
-        print("next", action, content)
+
         qs = Tweet.objects.filter(id=tweet_id)
-        print("first", qs.first())
         if not qs.exists():
-            return Response({}, status=404)
+            Response({}, status=404)
         obj = qs.first()
 
         if action == "like":
-            print(obj)
             obj.likes.add(request.user)
             serializer = TweetSerializer(obj)
-            return Response(serializer.data, status=200)
+            Response(serializer.data, status=200)
         elif action == 'unlike':
             obj.likes.remove(request.user)
-            serializer = TweetSerializer(obj)
-            return Response(serializer.data,status=200)
         elif action == "retweet":
             new_tweet = Tweet.objects.create(
                 user=request.user,
@@ -117,7 +112,7 @@ def tweet_action_view(request,*args, **kwargs):
                  content=content)
             #todo
             serializer = TweetSerializer(new_tweet)
-            return Response(serializer.data, status=201)
+            return Response(serializer.data, status=200)
 
     return Response({}, status=200)
 
