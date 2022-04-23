@@ -7,7 +7,7 @@ from rest_framework.test import APIClient
 
 User = get_user_model()
 
-class TweetTestCase(TestCase):
+class TweetTestCase(TestCase): 
 
     def setUp(self):
 
