@@ -3,7 +3,7 @@ from django.test import TestCase
 from .models import Tweet
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
-# Create your tests here..
+# Create your tests here.
 
 User = get_user_model()
 
